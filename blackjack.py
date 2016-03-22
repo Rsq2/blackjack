@@ -3,12 +3,16 @@ from hand import Hand
 from player import Player
 
 class Blackjack( Game ):
-    def __init__(self, deck, starting_money, players):
+    def __init__(self, starting_money, players):
         self.deck = cards.Deck.standard_deck
         self.players = players
 
     def new_hand(self):
-        this_hand = Hand.deal()
+        this_bet = int(input("How much would you like to bet?"))
+        this_hand = Hand(self.players, self.deck, this_bet)
+        this_hand.deal(2)
+        for player in this_hand.get_players():
+            evaluate_cards(player)
 
     def calculate_hand_value(self, current_player):
         for card in current_player.current_cards:
@@ -16,12 +20,13 @@ class Blackjack( Game ):
         return value
 
     def evaluate_cards(self, player):
-        for player in self.players:
-            the_number = calculate_hand_value(player)
+        the_number = calculate_hand_value(player)
 
+        while the_number < 22:
             if player.player_type == 'user':
                 if the_number > 21:
                     bust(player)
+                    break
                 elif the_number < 21:
                     self.get_choice(player)
                 elif the_number == 21:
@@ -31,21 +36,30 @@ class Blackjack( Game ):
                     print("SOMETHING IS TERRIBLY WRONG HERE.")
 
             elif player.player_type == 'dealer':
-                dealer_cards = player.get_current_cards
-                if dealer_cards[0].get_value() == 'A' and dealer_cards[1].get_value() in ['10','J', 'Q', 'K']:
-                    print ("\n\t DEALER WINS...\n")
-                    return True
-                while the_number < 17:
-                    hit(player)
+                dealer_cards = player.get_current_cards()
+                the_number = dealer_rules(player, the_number, dealer_cards)
+                return the_number
 
+    def dealer_rules(self, dealer, handval, dealer_cards):
+        dealer_number = handval
+        if dealer_cards[0].get_value() == 'A' and dealer_cards[1].get_value() in ['10','J', 'Q', 'K']:
+            print ("\n\t DEALER WINS OUTRIGHT...\n")
+            return True
 
+        while the_number < 17:
+            self.hit(dealer)
+            if dealer_number == 21:
+                print ("\n\t DEALER HITS 21...\n")
+                return True
+            elif dealer_number >= 17 and dealer_number < 21:
+                return dealer_number
 
     def stay(self, player):
-        print ("\n\tSTAY!\n")
-        self.calculate_hand_value(player)
+        print ("\n\t{0} Stays!\n".format(player.get_name()))
+        return self.calculate_hand_value(player)
 
     def hit(self, player):
-        pass
+        self.
 
     def split(self, player):
         pass

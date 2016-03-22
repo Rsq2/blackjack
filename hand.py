@@ -3,17 +3,17 @@ from player import Player
 
 class Hand:
     """Takes 4 Variables: incoming Deck object, max number of cards, bet for this hand, and an array of leftover cards"""
-    def __init__(self, players, deck, hand_size, bet):
+    def __init__(self, players, deck, bet):
         self.deck = deck
         self.bet = bet
         self.players = players
         self.hand_size = hand_size
 
-    def deal(self):
+    def deal(self, hand_size):
         self.deck.shuffle_deck
         for player in self.players:
             player.set_current_cards([])
-            for i in range(self.hand_size):
+            for i in range(hand_size):
                 player.current_cards.append(self.deck.draw_card())
 
     def fold(self, this_player):

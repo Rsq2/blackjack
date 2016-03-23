@@ -44,10 +44,10 @@ class Hand:
         for player in self.get_players():
             print(player.display_current_hand())
 
-this_player = Player(150)
-test_deck = cards.standard_deck()
-test_deck.shuffle_deck()
-this_bet = 50
+#this_player = Player(150)
+#test_deck = cards.standard_deck()
+#test_deck.shuffle_deck()
+#this_bet = 50
 
-a_test_hand = Hand(this_player, test_deck, 7, this_bet)
-a_test_hand.test_hand()
+#a_test_hand = Hand(this_player, test_deck, 7, this_bet)
+#a_test_hand.test_hand()

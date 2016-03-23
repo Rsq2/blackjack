@@ -22,7 +22,7 @@ class Player:
     def display_current_hand(self):
         return list(map(lambda x: x.get_display(), self.current_cards))
 
-# This wont be used for blackjack... but is neccesary for many other card games. Need to figure out how to identify each card in the display.
+# This wont be used for blackjack... but is neccesary for many other card games. Need to figure out how to identify each card in the display for selection.
     #def discard(self, num):
         #for i in range(num):
             #choice = str(input("\nCHOOSE CARD TO DISCARD: {0}\n> "

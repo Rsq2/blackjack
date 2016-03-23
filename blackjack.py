@@ -22,32 +22,34 @@ class Blackjack( Game ):
     def evaluate_cards(self, player):
         the_number = calculate_hand_value(player)
 
-        while the_number < 22:
-            if player.player_type == 'user':
-                if the_number > 21:
-                    bust(player)
-                    break
-                elif the_number < 21:
-                    self.get_choice(player)
-                elif the_number == 21:
-                    print("\n\t21! YOU WIN !!!! \n")
-                    return True
-                else:
-                    print("SOMETHING IS TERRIBLY WRONG HERE.")
+        if player.player_type == 'user':
+            if the_number > 21:
+                bust(player)
 
-            elif player.player_type == 'dealer':
-                dealer_cards = player.get_current_cards()
-                the_number = dealer_rules(player, the_number, dealer_cards)
-                return the_number
+            elif the_number < 21:
+                self.get_choice(player)
 
-    def dealer_rules(self, dealer, handval, dealer_cards):
+            elif the_number == 21:
+                print("\n\t21! YOU WIN !!!! \n")
+                return True
+
+            else:
+                print("SOMETHING IS TERRIBLY WRONG HERE.")
+
+        elif player.player_type == 'dealer':
+            the_number = dealer_rules(player, the_number, dealer_cards)
+            return the_number
+
+    def dealer_rules(self, dealer, handval):
         dealer_number = handval
+        dealer_cards = dealer.get_current_cards()
         if dealer_cards[0].get_value() == 'A' and dealer_cards[1].get_value() in ['10','J', 'Q', 'K']:
             print ("\n\t DEALER WINS OUTRIGHT...\n")
             return True
 
         while the_number < 17:
             self.hit(dealer)
+            the_number = calculate_hand_value(dealer)
             if dealer_number == 21:
                 print ("\n\t DEALER HITS 21...\n")
                 return True
@@ -59,10 +61,17 @@ class Blackjack( Game ):
         return self.calculate_hand_value(player)
 
     def hit(self, player):
-        self.
+        player.current_cards.append(self.deck.draw_card())
 
-    def split(self, player):
-        pass
+    def split_hand(self, player):
+        current_hand = player.get_current_cads()
+        second_hand = Player(str(player.get_name() + '- Split Hand'), player.get_bet())
+
+        player.set_current_cards[current_hand[0]]
+        self.hit(player)
+
+        second_hand.set_current_cards[current_hand[1]]
+        self.hit(second_hand)
 
     def double_down(self, player):
         pass
@@ -91,13 +100,13 @@ class Blackjack( Game ):
 
         try:
             if player_choice == "s":
-                self.stay()
+                self.stay(player)
             elif player_choice == "h":
-                self.hit()
+                self.hit(player)
             elif player_choice == "spl":
-                self.split_hand()
+                self.split_hand(player)
             elif player_choice == "d":
-                self.double_down()
+                self.double_down(player)
         except ValueError:
             print("I Don't Recognize That Input...")
             self.get_choice()

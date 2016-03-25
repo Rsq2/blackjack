@@ -3,11 +3,11 @@ from player import Player
 
 class Hand:
     """Takes 4 Variables: incoming Deck object, max number of cards, bet for this hand, and an array of leftover cards"""
-    def __init__(self, players, deck, bet):
+    def __init__(self, players, deck):
         self.deck = deck
-        self.bet = bet
         self.players = players
         self.hand_size = hand_size
+        self.winners = []
 
     def deal(self, hand_size):
         self.deck.shuffle_deck
@@ -19,17 +19,17 @@ class Hand:
     def fold(self, this_player):
         self.players -= this_player
 
-    def get_bet(self):
-        return self.bet
-
-    def set_bet(self, new_bet):
-        self.bet = new_bet
-
     def get_players(self):
         return self.players
 
     def set_players(self, new_players):
         self.players = new_players
+
+    def get_winners(self, winners):
+        return self.winners
+
+    def set_winners(self, winners):
+        self.winners = winners
 
     def test_hand(self):
         print(a_test_hand.get_bet())

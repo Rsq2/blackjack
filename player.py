@@ -6,6 +6,7 @@ class Player:
         self.name = name
         self.current_money = money
         self.current_cards = []
+        self.current_bet = 0
 
     def get_current_money(self):
         return self.current_money
@@ -18,6 +19,12 @@ class Player:
 
     def set_current_cards(self, new_cards):
         self.current_cards = new_cards
+
+    def get_bet(self):
+        return self.bet
+
+    def set_bet(self, new_bet):
+        self.bet = new_bet
 
     def display_current_hand(self):
         return list(map(lambda x: x.get_display(), self.current_cards))
@@ -52,10 +59,11 @@ class Player:
         print(this_player.get_current_money())
 
 class Dealer( Player ):
-    def __init__(self, name, cards, money):
-        Player.__init__(self, name, cards, money)
+    def __init__(self):
+        Player.__init__(self, name, money)
         self.name = 'Dealer'
         self.player_type = 'dealer'
+        self.money = 999999
 
     def dealer_stuff_goes_here(or_something):
         pass

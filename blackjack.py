@@ -1,28 +1,30 @@
 import cards
 from hand import Hand
-from player import Player
+from player import Player, Dealer
 
-class Blackjack( Game ):
-    def __init__(self, starting_money, players):
-        self.deck = cards.Deck.standard_deck
+class Blackjack:
+    def __init__(self, players):
+        self.deck = cards.standard_deck()
         self.players = players
         self.hand = 0
 
     def new_hand(self):
         self.hand = Hand(self.players, self.deck)
+        self.deck.shuffle_deck()
         self.hand.deal(2)
         for player in self.hand.get_players():
-            this_bet = int(input("How much would you like to bet?"))
+            this_bet = 5 #int(input("How much would you like to bet?"))
             playerwins = False
-            player_wins = evaluate_cards(player)
+            player_wins = self.evaluate_cards(player)
 
     def calculate_hand_value(self, current_player):
+        current_val = 0
         for card in current_player.current_cards:
-            value += card.get_value()
-        return value
+            current_val += card.get_value()
+        return current_val
 
     def evaluate_cards(self, player):
-        the_number = calculate_hand_value(player)
+        the_number = self.calculate_hand_value(player)
 
         if player.player_type == 'user':
             if the_number > 21:
@@ -32,11 +34,10 @@ class Blackjack( Game ):
                 self.get_choice(player)
 
             elif the_number == 21:
-                print("Current Hand [{0}] [{1}], Total: {2}\n"
+                print("Current Hand [{0}], Total: {2}\n"
             .format(
-                card[0].get_display,
-                card[1].get_display,
-                calculate_hand_value(player)))
+                player.display_current_hand(),
+                self.calculate_hand_value(player)))
 
                 print("\n\t21!\n")
                 return True
@@ -99,42 +100,53 @@ class Blackjack( Game ):
         self.hand.set_players(current_players)
 
     def get_choice(self, player):
-        cards = player.get_current_cards
+        cards = player.get_current_cards()
         choices = ['(S)tay.','(H)it!']
+        valid_input = ["s", "h"]
 
-        if cards[0] == cards[1]:
+        if cards[0].get_face() == cards[1].get_face():
             choices.append('(Spl)it')
+            valid_input.append('spl')
 
-        elif int((cards[0].get_value + cards[1].get_value)) in range(9,11):
+        elif int((cards[0].get_value() + cards[1].get_value())) in range(9,11):
             choices.append('(D)ouble Down')
+            valid_input.append('d')
 
         player_choice = str(input("Current Hand [{0}] [{1}], Total: {2},  What will you do? \n {3} \n > "
             .format(
-                card[0].get_display,
-                card[1].get_display,
-                card[0].get_value + card[1].get_value,
+                cards[0].get_display(),
+                cards[1].get_display(),
+                self.calculate_hand_value(player),
                 choices
             )
         )).lower()
 
         try:
-            if player_choice == "s":
+            if player_choice == "s" and player_choice in valid_input:
                 return self.stay(player)
-            elif player_choice == "h":
+            elif player_choice == "h" and player_choice in valid_input:
                 return self.hit(player)
-            elif player_choice == "spl":
+            elif player_choice == "spl" and player_choice in valid_input:
                 return self.split_hand(player)
-            elif player_choice == "d":
+            elif player_choice == "d" and player_choice in valid_input:
                 return self.double_down(player)
+            else:
+                print("I Don't Recognize That Input...")
+                self.get_choice()
+
         except ValueError:
             print("I Don't Recognize That Input...")
             self.get_choice()
 
 
 this_player = Player('Johnny Test', 150)
-this_dealer = Dealer()
+this_dealer = Dealer('Dealer', 99999)
 test_players = [this_player, this_dealer]
 test_deck = cards.standard_deck()
 test_deck.shuffle_deck()
 
-this_game = Blackjack
+this_game = Blackjack(test_players)
+
+this_game.new_hand()
+
+

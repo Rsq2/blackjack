@@ -59,7 +59,7 @@ class Player:
         print(this_player.get_current_money())
 
 class Dealer( Player ):
-    def __init__(self):
+    def __init__(self, name, money):
         Player.__init__(self, name, money)
         self.name = 'Dealer'
         self.player_type = 'dealer'

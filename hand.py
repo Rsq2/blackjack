@@ -6,7 +6,6 @@ class Hand:
     def __init__(self, players, deck):
         self.deck = deck
         self.players = players
-        self.hand_size = hand_size
         self.winners = []
 
     def deal(self, hand_size):

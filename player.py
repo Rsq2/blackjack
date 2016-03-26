@@ -5,7 +5,7 @@ class Player:
         self.player_type = 'user'
         self.name = name
         self.current_money = money
-        self.current_cards = []
+        self.player_hand = Player_Hand(self)
         self.current_bet = 0
 
     def get_current_money(self):
@@ -14,20 +14,17 @@ class Player:
     def set_current_money(self, new_money):
         self.current_money = new_money
 
-    def get_current_cards(self):
-        return self.current_cards
+    def get_name(self):
+        return self.name
 
-    def set_current_cards(self, new_cards):
-        self.current_cards = new_cards
+    def set_name(self, new_name):
+        self.name = new_hand
 
     def get_bet(self):
-        return self.bet
+        return self.current_bet
 
     def set_bet(self, new_bet):
-        self.bet = new_bet
-
-    def display_current_hand(self):
-        return list(map(lambda x: x.get_display(), self.current_cards))
+        self.current_bet = new_bet
 
 # This wont be used for blackjack... but is neccesary for many other card games. Need to figure out how to identify each card in the display for selection.
     #def discard(self, num):
@@ -58,14 +55,36 @@ class Player:
         print(this_player.display_current_hand())
         print(this_player.get_current_money())
 
+class Player_Hand:
+    def __init__(self, player):
+        self.player = player
+        self.current_cards = []
+
+    def __getitem__(self, i):
+        return self.current_cards[i]
+
+    def get_current_cards(self):
+        return self.current_cards
+
+    def set_current_cards(self, new_cards):
+        self.current_cards = new_cards
+
+    def display_current_hand(self):
+        return list(map(lambda x: x.get_display(), self.current_cards))
+
 class Dealer( Player ):
-    def __init__(self, name, money):
+    def __init__(self, name, money, behavior):
         Player.__init__(self, name, money)
         self.name = 'Dealer'
         self.player_type = 'dealer'
         self.money = 999999
+        self.behavior = behavior
 
-    def dealer_stuff_goes_here(or_something):
-        pass
+    def set_behavior(self, new_behavior):
+        self.behavior = new_behavior
+
+    def get_behavior(self, *args):
+        return self.behavior
+
 #new_player = Player(100)
 #new_player.test_player()

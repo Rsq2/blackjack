@@ -3,9 +3,14 @@ class Game:
         self.hand_size = 0
         self.graphics = graphics
 
-    def display_board(self):
-        for player in self.player:
-            pass
+    def add_players(self):
+        pass
+
+    def new_game(self):
+        for player in self.hand.get_players():
+            this_bet = 5 #int(input("How much would you like to bet?"))
+            playerwins = False
+            player_wins = self.evaluate_cards(player)
 
 
 #repr method in game class

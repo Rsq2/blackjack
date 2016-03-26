@@ -17,16 +17,17 @@ class Blackjack:
             playerwins = False
             player_wins = self.evaluate_cards(player)
 
-    def calculate_hand_value(self, current_player):
+
+    def calculate_hand_value(self, player):
         current_val = 0
-        for card in current_player.current_cards:
+        for card in player.player_hand.current_cards:
             current_val += card.get_value()
         return current_val
 
     def evaluate_cards(self, player):
         the_number = self.calculate_hand_value(player)
 
-        if player.player_type == 'user':
+        if player.player_type == 'user' and the_number != True:
             if the_number > 21:
                 self.bust(player)
 
@@ -34,10 +35,11 @@ class Blackjack:
                 self.get_choice(player)
 
             elif the_number == 21:
-                print("Current Hand [{0}], Total: {2}\n"
-            .format(
-                player.display_current_hand(),
-                self.calculate_hand_value(player)))
+                print("Current Hand [{0}], Total: {1}\n"
+                .format(
+                    player.player_hand.display_current_hand(),
+                    self.calculate_hand_value(player)
+                ))
 
                 print("\n\t21!\n")
                 return True
@@ -45,20 +47,23 @@ class Blackjack:
             else:
                 print("SOMETHING IS TERRIBLY WRONG HERE.")
 
-        elif player.player_type == 'dealer':
-            the_number = dealer_rules(player, the_number, dealer_cards)
+        elif player.player_type == 'dealer' and the_number != True:
+            the_number = player.get_behavior(player, the_number)
             return the_number
 
-    def dealer_rules(self, dealer, handval):
+        else:
+            return player
+
+    def dealer_behavior(self, handval):
         dealer_number = handval
-        dealer_cards = dealer.get_current_cards()
+        dealer_cards = self.player_hand
         if dealer_cards[0].get_value() == 'A' and dealer_cards[1].get_value() in ['10','J', 'Q', 'K']:
             print ("\n\t DEALER WINS OUTRIGHT...\n")
             return True
 
-        while the_number < 17:
+        while dealer_number < 17:
             self.hit(dealer)
-            the_number = calculate_hand_value(dealer)
+            dealer_number = self.calculate_hand_value(self)
             if dealer_number == 21:
                 print ("\n\t DEALER HITS 21...\n")
                 return True
@@ -71,7 +76,7 @@ class Blackjack:
 
     def hit(self, player):
         print("\n{0} HITS!\n".format(player.get_name()))
-        player.current_cards.append(self.deck.draw_card())
+        player.player_hand.current_cards.append(self.deck.draw_card())
         self.evaluate_cards(player)
 
     def split_hand(self, player):
@@ -96,11 +101,13 @@ class Blackjack:
     def bust(self, player):
         print("\n{0} BUSTS!\n".format(player.get_name()))
         current_players = self.hand.get_players()
-        del current_players[player]
+        del current_players[current_players.index(player)]
         self.hand.set_players(current_players)
+        for i in current_players:
+            print(i.get_name())
 
     def get_choice(self, player):
-        cards = player.get_current_cards()
+        cards = player.player_hand.get_current_cards()
         choices = ['(S)tay.','(H)it!']
         valid_input = ["s", "h"]
 
@@ -112,10 +119,9 @@ class Blackjack:
             choices.append('(D)ouble Down')
             valid_input.append('d')
 
-        player_choice = str(input("Current Hand [{0}] [{1}], Total: {2},  What will you do? \n {3} \n > "
+        player_choice = str(input("\nCurrent Hand {0}, Total: {1},  What will you do? \n {2} \n > "
             .format(
-                cards[0].get_display(),
-                cards[1].get_display(),
+                player.player_hand.display_current_hand(),
                 self.calculate_hand_value(player),
                 choices
             )
@@ -132,15 +138,15 @@ class Blackjack:
                 return self.double_down(player)
             else:
                 print("I Don't Recognize That Input...")
-                self.get_choice()
+                self.get_choice(player)
 
         except ValueError:
             print("I Don't Recognize That Input...")
-            self.get_choice()
+            self.get_choice(player)
 
 
 this_player = Player('Johnny Test', 150)
-this_dealer = Dealer('Dealer', 99999)
+this_dealer = Dealer('Dealer', 99999, Blackjack.dealer_behavior)
 test_players = [this_player, this_dealer]
 test_deck = cards.standard_deck()
 test_deck.shuffle_deck()

@@ -11,9 +11,9 @@ class Hand:
     def deal(self, hand_size):
         self.deck.shuffle_deck
         for player in self.players:
-            player.set_current_cards([])
+            player.player_hand.set_current_cards([])
             for i in range(hand_size):
-                player.current_cards.append(self.deck.draw_card())
+                player.player_hand.current_cards.append(self.deck.draw_card())
 
     def fold(self, this_player):
         self.players -= this_player

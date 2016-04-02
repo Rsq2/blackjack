@@ -73,18 +73,12 @@ class Player_Hand:
         return list(map(lambda x: x.get_display(), self.current_cards))
 
 class Dealer( Player ):
-    def __init__(self, name, money, behavior):
+    def __init__(self, name, money):
         Player.__init__(self, name, money)
         self.name = 'Dealer'
         self.player_type = 'dealer'
         self.money = 999999
-        self.behavior = behavior
 
-    def set_behavior(self, new_behavior):
-        self.behavior = new_behavior
-
-    def get_behavior(self, *args):
-        return self.behavior
 
 #new_player = Player(100)
 #new_player.test_player()

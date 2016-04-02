@@ -2,7 +2,6 @@ import cards
 from player import Player
 
 class Hand:
-    """Takes 4 Variables: incoming Deck object, max number of cards, bet for this hand, and an array of leftover cards"""
     def __init__(self, players, deck):
         self.deck = deck
         self.players = players

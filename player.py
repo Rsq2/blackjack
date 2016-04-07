@@ -26,6 +26,9 @@ class Player:
     def set_bet(self, new_bet):
         self.current_bet = new_bet
 
+    def reset_hand(self):
+        self.player_hand = Player_Hand(self)
+
 # This wont be used for blackjack... but is neccesary for many other card games. Need to figure out how to identify each card in the display for selection.
     #def discard(self, num):
         #for i in range(num):
@@ -59,6 +62,7 @@ class Player_Hand:
     def __init__(self, player):
         self.player = player
         self.current_cards = []
+        self.times_evaluated = 0
 
     def __getitem__(self, i):
         return self.current_cards[i]

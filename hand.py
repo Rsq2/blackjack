@@ -23,11 +23,20 @@ class Hand:
     def set_players(self, new_players):
         self.players = new_players
 
+    def get_dealer(self):
+        return self.get_dealer
+
+    def set_dealer(self, new_dealer):
+        self.dealer = new_dealer
+
     def get_winners(self, winners):
         return self.winners
 
     def set_winners(self, winners):
         self.winners = winners
+
+    def get_playernames(self):
+        return [i.get_name() for i in self.players]
 
     def test_hand(self):
         print(a_test_hand.get_bet())

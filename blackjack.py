@@ -12,13 +12,30 @@ class Blackjack:
         self.hand = Hand(self.players, self.deck)
         self.deck.shuffle_deck()
         self.hand.deal(2)
-        for player in self.hand.get_players():
-            this_bet = 5 #int(input("How much would you like to bet?"))
-            new_count = 0
-            player_handval = self.evaluate_cards(player, new_count)
-            print (player_handval)
+        print(self.hand.get_playernames())
 
-    def calculate_winners(self):
+        if self.check_outright_win() == True:
+            pass
+        else:
+            starting_players = self.hand.get_players()
+
+            for p in starting_players[:]:
+                if p.player_type == 'user':
+                    #this_bet = int(input(
+                        #" \nCurrent Money: {0}\nHow much would you like to bet?\n> "
+                        #.format(p.get_current_money())))
+                    this_bet = 5
+                    self.evaluate_cards(p)
+
+                elif p.player_type == 'dealer':
+                    dealer_number = self.dealer_behavior(p)
+
+            remaining_players = self.hand.get_players()
+
+            for p in remaining_players[:]:
+                self.calculate_winners(p, dealernumber)
+
+    def calculate_winners(self, players):
         pass
 
     def calculate_hand_value(self, player):
@@ -27,90 +44,112 @@ class Blackjack:
             current_val += card.get_value()
         return current_val
 
-    def evaluate_cards(self, player, count):
-        count += 1
+    def evaluate_cards(self, player):
+        player.player_hand.times_evaluated += 1
+
         the_number = self.calculate_hand_value(player)
 
-        if player.player_type == 'user' and the_number != True:
-            if the_number > 21:
-                self.bust(player)
+        if the_number > 21:
+            self.bust(player)
 
-            elif the_number < 21:
-                return self.get_choice(player, count)
+        elif the_number < 21:
+            self.get_choices(player)
 
-            elif the_number == 21:
-                print("Current Hand {0}, Total: {1}\n"
-                .format(
-                    player.player_hand.display_current_hand(),
-                    self.calculate_hand_value(player)
-                ))
+        elif the_number == 21:
+            print("Current Hand {0}, Total: {1}\n"
+            .format(
+                player.player_hand.display_current_hand(),
+                self.calculate_hand_value(player)
+            ))
 
-                print("\n\t21!\n")
-                return True
-
-            else:
-                print("SOMETHING IS TERRIBLY WRONG HERE.")
-
-        elif player.player_type == 'dealer' and the_number != True:
-            dealer_number = self.dealer_behavior(player, the_number)
-            return dealer_number
+            print("\n\t21!\n")
+            return the_number
 
         else:
-            return player, count
+            print("SOMETHING IS TERRIBLY WRONG HERE.")
 
-    def dealer_behavior(self, dealer, count):
+    def check_outright_win(self):
+        for p in self.hand.get_players():
+            if p.player_type == 'dealer':
+                dealer_cards = p.player_hand
+                dealer_number = self.calculate_hand_value(p)
+
+                if dealer_cards[0].get_face() == 'A' and dealer_cards[1].get_face() in ['10','J', 'Q', 'K']:
+                    print ("\n\t DEALER WINS OUTRIGHT...\n{0}".format(
+                        dealer_cards.display_current_hand()
+                        ))
+                    return True
+
+
+    def dealer_behavior(self, dealer):
         dealer_cards = dealer.player_hand
         dealer_number = self.calculate_hand_value(dealer)
 
         if dealer_cards[0].get_face() == 'A' and dealer_cards[1].get_face() in ['10','J', 'Q', 'K']:
-            print ("\n\t DEALER WINS OUTRIGHT...\n{0}".format(dealer_cards.display_current_hand()))
+            print ("\n\t DEALER WINS OUTRIGHT...\n{0}".format(
+                dealer_cards.display_current_hand()
+                ))
             return True
 
-        while dealer_number < 17:
-            self.hit(dealer, count)
-            dealer_number = self.calculate_hand_value(dealer)
-            if dealer_number == 21:
-                print ("\n\t DEALER HITS 21...\n")
-                return dealer_number
-            elif dealer_number >= 17 and dealer_number < 21:
-                return dealer_number
+        if dealer_number == 21:
+            print ("\n\t DEALER HITS 21...\n")
+            return dealer_number
+
+
+        elif dealer_number > 21:
+            self.bust(dealer)
+
+        elif dealer_number in range(17,20):
+            self.stay(dealer)
+
+        else:
+            self.hit(dealer)
 
     def stay(self, player):
         print ("\n\t{0} STAYS!\n".format(player.get_name()))
-        return self.calculate_hand_value(player)
+        self.calculate_hand_value(player)
 
-    def hit(self, player, count):
-        print("\n{0} HITS!\n".format(player.get_name()))
+    def hit(self, player):
+        print("\n\t{0} HITS!\n".format(player.get_name()))
         player.player_hand.current_cards.append(self.deck.draw_card())
-        return self.evaluate_cards(player, count)
 
     def split_hand(self, player):
-        print("\n{0} SPLITS THEIR CARDS!\n".format(player.get_name()))
-        current_hand = player.get_current_cards()
+        print("\n\t{0} SPLITS THEIR CARDS!\n".format(player.get_name()))
+        current_hand = player.player_hand.get_current_cards()
         second_hand = Player(str(player.get_name() + '- Split Hand'), player.get_bet())
 
-        player.set_current_cards[current_hand[0]]
-        self.hit(player, count)
+        player.player_hand.set_current_cards(current_hand[:0])
+        player.player_hand.current_cards.append(self.deck.draw_card())
 
-        second_hand.set_current_cards[current_hand[1]]
-        self.hit(second_hand, count)
+        second_hand.player_hand.set_current_cards(current_hand[1:])
+        second_hand.player_hand.current_cards.append(self.deck.draw_card())
+        return self.evaluate_cards(player)
 
-    def double_down(self, player, count):
+    def double_down(self, player):
         print("\n{0} DOUBLES DOWN!\n".format(player.get_name()))
         doubled_bet = player.get_bet() * 2
         player.set_bet(doubled_bet)
-        self.hit(player, count)
-        return self.stay(player)
+        player.player_hand.current_cards.append(self.deck.draw_card())
+
+        if self.calculate_hand_value(player) > 21:
+            self.bust(player)
+
+        else:
+            print("Current Hand {0}, Total: {1}".format(
+                player.player_hand.display_current_hand(),
+                self.calculate_hand_value(player),
+                ))
+            self.stay(player)
 
     def bust(self, player):
-        print("\n{0} BUSTS!\n".format(player.get_name()))
-        remaining_players = self.hand.get_players()
-        del remaining_players[remaining_players.index(player)]
-        self.hand.set_players(remaining_players)
-        return self.calculate_hand_value(player)
+        print("\n\t{0} BUSTS!\n".format(player.get_name()))
+        current_players = self.hand.get_players()
+        current_players.remove(player)
+        self.hand.set_players(current_players)
 
-    def get_choice(self, player, count):
+    def get_choices(self, player):
         cards = player.player_hand.get_current_cards()
+        count = player.player_hand.times_evaluated
         choices = ['(S)tay.','(H)it!']
         valid_input = ["s", "h"]
 
@@ -122,6 +161,9 @@ class Blackjack:
             choices.append('(D)ouble Down')
             valid_input.append('d')
 
+        return self.set_choice(player, choices, valid_input)
+
+    def set_choice(self, player, choices, valid_input):
         player_choice = str(input("\nCurrent Hand {0}, Total: {1},  What will you do? \n {2} \n > "
             .format(
                 player.player_hand.display_current_hand(),
@@ -135,29 +177,32 @@ class Blackjack:
             try:
                 if player_choice == "s" and player_choice in valid_input:
                     choice_made = True
-                    return self.stay(player)
+                    self.stay(player)
 
                 elif player_choice == "h" and player_choice in valid_input:
                     choice_made = True
-                    return self.hit(player, count)
+                    self.hit(player)
+                    self.evaluate_cards(player)
 
                 elif player_choice == "spl" and player_choice in valid_input:
                     choice_made = True
-                    return self.split_hand(player, count)
+                    self.split_hand(player)
 
                 elif player_choice == "d" and player_choice in valid_input:
                     choice_made = True
-                    return self.double_down(player, count)
+                    self.double_down(player)
 
                 else:
                     print("I Don't Recognize That Input...")
-
+                    self.set_choice(player, choices, valid_input)
 
             except ValueError:
                 print("I Don't Recognize That Input...")
+                self.set_choice(player, choices, valid_input)
 
 
 this_player = Player('Johnny Test', 150)
+#this_other_player = Player('Jane Trial', 150)
 this_dealer = Dealer('Dealer', 99999)
 test_players = [this_player, this_dealer]
 test_deck = cards.standard_deck()

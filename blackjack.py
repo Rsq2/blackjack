@@ -19,6 +19,10 @@ class Blackjack:
         else:
             starting_players = self.hand.get_players()
 
+            # [:] is taking the whole array and making a new copy rather than reference
+            # so that its pototype can be modified within the 'for' loop. Normal
+            # variable references do not allow for modification of the parent
+            # or child reference during iteration.
             for p in starting_players[:]:
                 if p.player_type == 'user':
                     #this_bet = int(input(
@@ -33,9 +37,9 @@ class Blackjack:
             remaining_players = self.hand.get_players()
 
             for p in remaining_players[:]:
-                self.calculate_winners(p, dealernumber)
+                self.calculate_winners(p, dealer_number)
 
-    def calculate_winners(self, players):
+    def calculate_winners(self, players, dealer_number):
         pass
 
     def calculate_hand_value(self, player):
@@ -80,21 +84,13 @@ class Blackjack:
                         ))
                     return True
 
-
     def dealer_behavior(self, dealer):
         dealer_cards = dealer.player_hand
         dealer_number = self.calculate_hand_value(dealer)
 
-        if dealer_cards[0].get_face() == 'A' and dealer_cards[1].get_face() in ['10','J', 'Q', 'K']:
-            print ("\n\t DEALER WINS OUTRIGHT...\n{0}".format(
-                dealer_cards.display_current_hand()
-                ))
-            return True
-
         if dealer_number == 21:
             print ("\n\t DEALER HITS 21...\n")
             return dealer_number
-
 
         elif dealer_number > 21:
             self.bust(dealer)
@@ -106,8 +102,10 @@ class Blackjack:
             self.hit(dealer)
 
     def stay(self, player):
-        print ("\n\t{0} STAYS!\n".format(player.get_name()))
-        self.calculate_hand_value(player)
+        print ("\n\t{0} STAYS at {1}!\n".format(
+            player.get_name(),
+            self.calculate_hand_value(player)
+            ))
 
     def hit(self, player):
         print("\n\t{0} HITS!\n".format(player.get_name()))
@@ -142,7 +140,10 @@ class Blackjack:
             self.stay(player)
 
     def bust(self, player):
-        print("\n\t{0} BUSTS!\n".format(player.get_name()))
+        print("\n\t{0} BUSTS! {1} ... \n".format(
+            player.get_name(),
+            self.calculate_hand_value(player)
+            ))
         current_players = self.hand.get_players()
         current_players.remove(player)
         self.hand.set_players(current_players)

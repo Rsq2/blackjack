@@ -24,7 +24,31 @@ class Player:
         return self.current_bet
 
     def set_bet(self, new_bet):
-        self.current_bet = new_bet
+
+        if new_bet > self.current_money:
+            new_bet = int(input("\nInvalid. Enter bet up to ${0}".format(
+                self.current_money
+                )))
+
+            choice_made = False
+            while choice_made == False:
+                try:
+                    if new_bet <= self.current_money:
+                        choice_made = True
+                        self.current_money -= new_bet
+                        self.bet = new_bet
+                    else:
+                        new_bet = int(input("\nInvalid input. Enter bet up to ${0}"
+                            .format(self.current_money)))
+
+                except ValueError:
+                    new_bet = int(input("\nInvalid input. Enter bet up to ${0}".format(
+                        self.current_money
+                        )))
+
+            else:
+                self.current_money -= new_bet
+                self.current_bet = new_bet
 
     def reset_hand(self):
         self.player_hand = Player_Hand(self)
@@ -66,6 +90,9 @@ class Player_Hand:
 
     def __getitem__(self, i):
         return self.current_cards[i]
+
+    def __repr__(self):
+        return list(map(lambda x: x.get_display(), self.current_cards))
 
     def get_current_cards(self):
         return self.current_cards

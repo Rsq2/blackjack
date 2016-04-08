@@ -24,33 +24,22 @@ class Player:
         return self.current_bet
 
     def set_bet(self, new_bet):
+        choice_made = False
+        while choice_made == False:
+            try:
+                if new_bet <= self.current_money and new_bet > 0:
+                    choice_made = True
+                    self.current_money -= new_bet
+                    self.bet = new_bet
+                else:
+                    new_bet = int(input("\nInvalid bet. Enter bet up to ${0}\n > "
+                        .format(self.current_money)))
 
-        if new_bet > self.current_money:
-            new_bet = int(input("\nInvalid. Enter bet up to ${0}".format(
-                self.current_money
-                )))
-
-            choice_made = False
-            while choice_made == False:
-                try:
-                    if new_bet <= self.current_money:
-                        choice_made = True
-                        self.current_money -= new_bet
-                        self.bet = new_bet
-                    else:
-                        new_bet = int(input("\nInvalid input. Enter bet up to ${0}"
-                            .format(self.current_money)))
-
-                except ValueError:
-                    new_bet = int(input("\nInvalid input. Enter bet up to ${0}".format(
-                        self.current_money
-                        )))
-
-            else:
-                self.current_money -= new_bet
-                self.current_bet = new_bet
+            except ValueError:
+                pass
 
     def reset_hand(self):
+        self.player_hand = 0
         self.player_hand = Player_Hand(self)
 
 # This wont be used for blackjack... but is neccesary for many other card games. Need to figure out how to identify each card in the display for selection.

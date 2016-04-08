@@ -16,19 +16,20 @@ class Blackjack:
 
         if self.check_outright_win() == True:
             pass
+
         else:
             starting_players = self.hand.get_players()
 
             # [:] is taking the whole array and making a new copy rather than reference
-            # so that its pototype can be modified within the 'for' loop. Normal
-            # variable references do not allow for modification of the parent
-            # or child reference during iteration.
+            # so that it can be modified within the 'for' loop.
+
             for p in starting_players[:]:
                 if p.player_type == 'user':
-                    #this_bet = int(input(
-                        #" \nCurrent Money: {0}\nHow much would you like to bet?\n> "
-                        #.format(p.get_current_money())))
-                    this_bet = 5
+                    p.set_bet(int(input(
+                        "\nCurrent Money: {0}\nHow much would you like to bet?\n > "
+                        .format(p.get_current_money())
+                        )))
+
                     self.evaluate_cards(p)
 
                 elif p.player_type == 'dealer':
@@ -39,8 +40,12 @@ class Blackjack:
             for p in remaining_players[:]:
                 self.calculate_winners(p, dealer_number)
 
-    def calculate_winners(self, players, dealer_number):
-        pass
+    def calculate_winners(self, player, dealer_number):
+        if self.calculate_hand_value(player) > dealer_number:
+            print("\n{0} WINS!\n+ ${1}\n".format(
+                player.get_name(),
+                player.get_bet(),
+                ))
 
     def calculate_hand_value(self, player):
         current_val = 0
@@ -79,13 +84,12 @@ class Blackjack:
                 dealer_number = self.calculate_hand_value(p)
 
                 if dealer_cards[0].get_face() == 'A' and dealer_cards[1].get_face() in ['10','J', 'Q', 'K']:
-                    print ("\n\t DEALER WINS OUTRIGHT...\n{0}".format(
+                    print ("\nDEALER WINS OUTRIGHT...\n\t{0}".format(
                         dealer_cards.display_current_hand()
                         ))
                     return True
 
     def dealer_behavior(self, dealer):
-        dealer_cards = dealer.player_hand
         dealer_number = self.calculate_hand_value(dealer)
 
         if dealer_number == 21:
@@ -100,12 +104,15 @@ class Blackjack:
 
         else:
             self.hit(dealer)
+            self.dealer_behavior(dealer)
 
     def stay(self, player):
+        final_number = self.calculate_hand_value(player)
         print ("\n\t{0} STAYS at {1}!\n".format(
             player.get_name(),
-            self.calculate_hand_value(player)
+            final_number
             ))
+        return final_number
 
     def hit(self, player):
         print("\n\t{0} HITS!\n".format(player.get_name()))
@@ -147,6 +154,8 @@ class Blackjack:
         current_players = self.hand.get_players()
         current_players.remove(player)
         self.hand.set_players(current_players)
+        return 0
+
 
     def get_choices(self, player):
         cards = player.player_hand.get_current_cards()

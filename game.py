@@ -12,6 +12,5 @@ class Game:
             playerwins = False
             player_wins = self.evaluate_cards(player)
 
-
 #repr method in game class
 #printing logic happens here ... check whose playing ... current_player... format a string dynamically

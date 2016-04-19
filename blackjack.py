@@ -19,6 +19,7 @@ class Blackjack:
 
         else:
             starting_players = self.hand.get_players()
+            dealer_number = 0
 
             # [:] is taking the whole array and making a new copy rather than reference
             # so that it can be modified within the 'for' loop.
@@ -39,6 +40,7 @@ class Blackjack:
 
             for p in remaining_players[:]:
                 self.calculate_winners(p, dealer_number)
+                print(dealer_number)
 
     def calculate_winners(self, player, dealer_number):
         if self.calculate_hand_value(player) > dealer_number:
@@ -98,9 +100,11 @@ class Blackjack:
 
         elif dealer_number > 21:
             self.bust(dealer)
+            return 0
 
         elif dealer_number in range(17,20):
             self.stay(dealer)
+            return dealer_number
 
         else:
             self.hit(dealer)
@@ -120,20 +124,19 @@ class Blackjack:
 
     def split_hand(self, player):
         print("\n\t{0} SPLITS THEIR CARDS!\n".format(player.get_name()))
-        current_hand = player.player_hand.get_current_cards()
+        split_hand = player.player_hand.get_current_cards()
         second_hand = Player(str(player.get_name() + '- Split Hand'), player.get_bet())
 
-        player.player_hand.set_current_cards(current_hand[:0])
+        player.player_hand.set_current_cards(split_hand.pop(0))
         player.player_hand.current_cards.append(self.deck.draw_card())
 
-        second_hand.player_hand.set_current_cards(current_hand[1:])
+        second_hand.player_hand.set_current_cards(split_hand.pop())
         second_hand.player_hand.current_cards.append(self.deck.draw_card())
         return self.evaluate_cards(player)
 
     def double_down(self, player):
         print("\n{0} DOUBLES DOWN!\n".format(player.get_name()))
-        doubled_bet = player.get_bet() * 2
-        player.set_bet(doubled_bet)
+        player.set_bet()
         player.player_hand.current_cards.append(self.deck.draw_card())
 
         if self.calculate_hand_value(player) > 21:
@@ -168,8 +171,9 @@ class Blackjack:
             valid_input.append('spl')
 
         elif int((cards[0].get_value() + cards[1].get_value())) in range(9,11) and count <= 1:
-            choices.append('(D)ouble Down')
-            valid_input.append('d')
+            if player.get_current_money() > (player.get_bet() * 2):
+                choices.append('(D)ouble Down')
+                valid_input.append('d')
 
         return self.set_choice(player, choices, valid_input)
 

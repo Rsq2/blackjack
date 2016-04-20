@@ -12,7 +12,6 @@ class Blackjack:
         self.hand = Hand(self.players, self.deck)
         self.deck.shuffle_deck()
         self.hand.deal(2)
-        print(self.hand.get_playernames())
 
         if self.check_outright_win() == True:
             pass
@@ -26,27 +25,38 @@ class Blackjack:
 
             for p in starting_players[:]:
                 if p.player_type == 'user':
-                    p.set_bet(int(input(
+                    p.set_bet(input(
                         "\nCurrent Money: {0}\nHow much would you like to bet?\n > "
                         .format(p.get_current_money())
-                        )))
+                        ))
 
                     self.evaluate_cards(p)
 
                 elif p.player_type == 'dealer':
+                    # IMPLICIT ASSUMPTION: dealer is appended last to the player array
                     dealer_number = self.dealer_behavior(p)
 
             remaining_players = self.hand.get_players()
 
             for p in remaining_players[:]:
-                self.calculate_winners(p, dealer_number)
-                print(dealer_number)
+                if p.player_type == 'user':
+                    self.calculate_winners(p, dealer_number)
 
     def calculate_winners(self, player, dealer_number):
-        if self.calculate_hand_value(player) > dealer_number:
+        player_number = self.calculate_hand_value(player)
+
+        if dealer_number == None or player_number > dealer_number:
             print("\n{0} WINS!\n+ ${1}\n".format(
                 player.get_name(),
                 player.get_bet(),
+                ))
+
+            player.set_current_money(player.get_current_money() + player.get_bet())
+
+        elif player_number < dealer_number:
+            print("{0} LOSES ... {1}\n".format(
+                player.get_name(),
+                player_number
                 ))
 
     def calculate_hand_value(self, player):
@@ -54,6 +64,15 @@ class Blackjack:
         for card in player.player_hand.current_cards:
             current_val += card.get_value()
         return current_val
+
+    def get_highest_handval(self):
+        highest = 0
+        for p in self.hand.get_players():
+            this_handval = self.calculate_hand_value(p)
+            if this_handval > highest:
+                highest = this_handval
+
+        return highest
 
     def evaluate_cards(self, player):
         player.player_hand.times_evaluated += 1
@@ -94,6 +113,9 @@ class Blackjack:
     def dealer_behavior(self, dealer):
         dealer_number = self.calculate_hand_value(dealer)
 
+        if self.hand.players == [dealer]:
+            return dealer_number
+
         if dealer_number == 21:
             print ("\n\t DEALER HITS 21...\n")
             return dealer_number
@@ -102,7 +124,7 @@ class Blackjack:
             self.bust(dealer)
             return 0
 
-        elif dealer_number in range(17,20):
+        elif dealer_number in range(17,21):
             self.stay(dealer)
             return dealer_number
 
@@ -119,8 +141,13 @@ class Blackjack:
         return final_number
 
     def hit(self, player):
-        print("\n\t{0} HITS!\n".format(player.get_name()))
-        player.player_hand.current_cards.append(self.deck.draw_card())
+        the_card = self.deck.draw_card()
+        print("\n\t{0} HITS! ... {1} !\n".format(
+            player.get_name(),
+            the_card.get_display()
+            ))
+
+        player.player_hand.current_cards.append(the_card)
 
     def split_hand(self, player):
         print("\n\t{0} SPLITS THEIR CARDS!\n".format(player.get_name()))
@@ -135,8 +162,15 @@ class Blackjack:
         return self.evaluate_cards(player)
 
     def double_down(self, player):
-        print("\n{0} DOUBLES DOWN!\n".format(player.get_name()))
-        player.set_bet()
+        player_bet = player.get_bet()
+        new_bet = player_bet * 2
+
+        print("\n{0} DOUBLES DOWN! ... Bet doubled to {1}\n".format(
+            player.get_name(),
+            player_bet
+            ))
+
+        player.set_bet(player_bet)
         player.player_hand.current_cards.append(self.deck.draw_card())
 
         if self.calculate_hand_value(player) > 21:
@@ -150,7 +184,7 @@ class Blackjack:
             self.stay(player)
 
     def bust(self, player):
-        print("\n\t{0} BUSTS! {1} ... \n".format(
+        print("\n\t{0} BUSTS! ... {1}\n".format(
             player.get_name(),
             self.calculate_hand_value(player)
             ))
@@ -170,7 +204,7 @@ class Blackjack:
             choices.append('(Spl)it')
             valid_input.append('spl')
 
-        elif int((cards[0].get_value() + cards[1].get_value())) in range(9,11) and count <= 1:
+        elif int((cards[0].get_value() + cards[1].get_value())) in range(9,12) and count <= 1:
             if player.get_current_money() > (player.get_bet() * 2):
                 choices.append('(D)ouble Down')
                 valid_input.append('d')
@@ -178,7 +212,7 @@ class Blackjack:
         return self.set_choice(player, choices, valid_input)
 
     def set_choice(self, player, choices, valid_input):
-        player_choice = str(input("\nCurrent Hand {0}, Total: {1},  What will you do? \n {2} \n > "
+        player_choice = str(input("Dealer Hand:\n\nCurrent Hand {0}, Total: {1},  What will you do? \n {2} \n > "
             .format(
                 player.player_hand.display_current_hand(),
                 self.calculate_hand_value(player),
@@ -208,11 +242,11 @@ class Blackjack:
 
                 else:
                     print("I Don't Recognize That Input...")
-                    self.set_choice(player, choices, valid_input)
+                    return self.set_choice(player, choices, valid_input)
 
             except ValueError:
                 print("I Don't Recognize That Input...")
-                self.set_choice(player, choices, valid_input)
+                return self.set_choice(player, choices, valid_input)
 
 
 this_player = Player('Johnny Test', 150)

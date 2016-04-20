@@ -27,16 +27,19 @@ class Player:
         choice_made = False
         while choice_made == False:
             try:
+                new_bet = int(new_bet)
                 if new_bet <= self.current_money and new_bet > 0:
                     choice_made = True
                     self.current_money -= new_bet
-                    self.bet = new_bet
+                    self.current_bet = new_bet
+
                 else:
-                    new_bet = int(input("\nInvalid bet. Enter bet up to ${0}\n > "
-                        .format(self.current_money)))
+                    new_bet = input("\nInvalid bet. Enter bet up to ${0}\n > "
+                        .format(self.current_money))
 
             except ValueError:
-                pass
+                new_bet = input("\nInvalid bet. Enter bet up to ${0}\n > "
+                    .format(self.current_money))
 
     def reset_hand(self):
         self.player_hand = 0

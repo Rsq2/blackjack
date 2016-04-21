@@ -61,8 +61,18 @@ class Blackjack:
 
     def calculate_hand_value(self, player):
         current_val = 0
-        for card in player.player_hand.current_cards:
+        current_hand = player.player_hand.get_current_cards()
+        num_aces = 0
+
+        for card in current_hand:
             current_val += card.get_value()
+            if card.get_face() =='A':
+                num_aces += 1
+
+        while current_val > 21 and num_aces > 0:
+            current_val = current_val - 10
+            num_aces -= 1
+
         return current_val
 
     def get_highest_handval(self):
@@ -92,7 +102,9 @@ class Blackjack:
                 self.calculate_hand_value(player)
             ))
 
-            print("\n\t21!\n")
+            print("\n\t{0} HITS 21!!!\n".format(
+                player.get_name()
+                ))
             return the_number
 
         else:
